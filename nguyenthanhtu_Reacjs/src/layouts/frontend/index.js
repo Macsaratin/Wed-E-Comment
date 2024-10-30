@@ -1,9 +1,11 @@
 import React from 'react';
-import Home from '../../pages/frontend/home';
+import { Outlet } from 'react-router-dom';
 
 const index = () => {
     return (
-        <Home />
+        <>
+            <Outlet />
+        </>
     );
 }
 

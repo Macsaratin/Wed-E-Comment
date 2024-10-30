@@ -17,9 +17,10 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with('images') // Eager load images
+        $products = Product::with('images')
             ->where('products.status', '!=', 0)
             ->orderBy('products.id', 'ASC')
+            ->join('product_images', 'products.id', '=', 'product_images.product_id')
             ->join('categories', 'products.category_id', '=', 'categories.id')
             ->join('brands', 'products.brand_id', '=', 'brands.id')
             ->select(
@@ -29,8 +30,13 @@ class ProductController extends Controller
                 "categories.name as catname",
                 "brands.name as brandname",
                 "products.price",
+                "product_images.thumbnail",
+                "products.created_at",
             )
             ->get();
+            foreach ($products as $product) {
+                $product->thumbnail = url('images/product/' . $product->thumbnail); 
+            }
     
         return response()->json([
             'status' => true,
@@ -39,279 +45,285 @@ class ProductController extends Controller
         ]);
     }
     
-    
+
     public function store(StoreProductRequest $request)
     {
         $product = new Product();
-        $product->name = $request->name;
-        $product->slug = $request->slug;
-        $product->category_id = $request->category_id;
-        $product->brand_id = $request->brand_id;
-        $product->content = $request->input('content', null);
-        $product->price = $request->price;
-        $product->description = $request->description;
-        $product->status = $request->status;
-        $product->created_by = 1; // Current user ID
+        $product->fill($request->all());
+        $product->created_by = 1;
         $product->created_at = now();
     
+        // Save product once with all data
         if ($product->save()) {
-            // Save multiple images
             if ($request->hasFile('thumbnail')) {
+                $images = []; 
+    
                 foreach ($request->file('thumbnail') as $file) {
                     $fileName = date('YmdHis') . '_' . uniqid() . '.' . $file->extension();
                     $file->move(public_path('images/product'), $fileName);
-                    
-                    ProductImage::create([
+    
+                    // Prepare image data for batch insertion
+                    $images[] = [
                         'product_id' => $product->id,
                         'thumbnail' => $fileName,
-                    ]);
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
                 }
+                ProductImage::insert($images);
             }
     
+            // Respond with success and the created product data
             return response()->json([
                 'status' => true,
                 'message' => 'Thêm thành công',
-                'product' => $product,
-            ]);
-        } else {
-            return response()->json([
-                'status' => false,
-                'message' => 'Không thể thêm',
-                'product' => null,
+                'products' => $product,
             ]);
         }
+    
+        // Respond with failure if the product save failed
+        return response()->json([
+            'status' => false,
+            'message' => 'Không thể thêm',
+            'products' => null,
+        ]);
     }
     
 
     public function show($id)
-    {
-        $products = Product::find($id);
-
-        if (!$products || $products->status == 0) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Sản phẩm không tồn tại hoặc đã bị vô hiệu hóa'
-            ], 404);
-        }
-
+{
+    // Fetch the product with its images
+    $product = Product::with('images')->find($id);
+    
+    // Check if the product exists and is active
+    if (!$product || $product->status == 0) {
         return response()->json([
-            'status' => true,
-            'products' => $products
+            'status' => false,
+            'message' => 'Sản phẩm không tồn tại hoặc đã bị vô hiệu hóa'
+        ], 404);
+    }
+    
+    // Return the product details
+    return response()->json([
+        'status' => true,
+        'product' => $product // Make sure to use 'product' instead of 'products' for clarity
+    ]);
+}
+
+public function update(UpdateProductRequest $request, $id)
+{
+    $product = Product::find($id);
+    if (!$product) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Không tìm thấy thông tin',
+            'product' => null
         ]);
     }
 
-    public function update(UpdateProductRequest $request,$id)
-    {
-        $product = Product::find($id);
-        if($product==null)
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không tìm thầy thông tín',
-                'product'=>null
-            ];
-            return response()->json($result);
+    // Fill the product with request data
+    $product->fill($request->except('thumbnail')); // Exclude 'thumbnail' from fill
+
+    // Update the user ID and timestamp
+    $product->updated_by = Auth::id(); // Current user ID
+    $product->updated_at = now();
+
+    // Handle file uploads
+    if ($request->hasFile('thumbnail')) {
+        // Handle the image uploads
+        $thumbnails = $request->file('thumbnail');
+        $thumbnailPaths = [];
+
+        foreach ($thumbnails as $thumbnail) {
+            // Save each file and store the path
+            $path = $thumbnail->store('images/product', 'public'); // Adjust path as needed
+            $thumbnailPaths[] = $path;
         }
-        $product->name = $request->name;
-        $product->slug = $request->slug;
-        $product->price = $request->price;
-        $product->description = $request->description;
-        $product->status = $request->status;
-        $product->updated_at =  date('Y-m-d H:i:s');
-        $product->status =  $request->status;
-        if($product->save())
-        {
-            $result =[
-                'status'=>true,
-                'message'=>'Cập nhật thành công',
-                'product'=>$product
-            ];
+
+        // Clear old images (optional)
+        $product->images()->delete(); 
+
+        // Create new image entries
+        foreach ($thumbnailPaths as $path) {
+            $product->images()->create(['thumbnail' => $path]); // Create new image entries
         }
-        else
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không thể cập nhật',
-                'product'=>null
-            ];
-        }
-        return response()->json($result);
     }
+
+    // Save the product
+    if ($product->save()) {
+        return response()->json([
+            'status' => true,
+            'message' => 'Cập nhật thành công',
+            'product' => $product
+        ]);
+    }
+
+    return response()->json([
+        'status' => false,
+        'message' => 'Không thể cập nhật',
+        'product' => null
+    ]);
+}
+
+
     public function delete($id)
     {
         $product = Product::find($id);
-        if($product==null)
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không tìm thầy thông tin',
-                'products'=>null
-            ];
-            return response()->json($result);
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy thông tin',
+                'product' => null,
+            ]);
         }
+
         $product->status = 0;
-        $product->updated_by =  1;
-        $product->updated_at =  date('Y-m-d H:i:s');
-        if($product->save())
-        {
-            $result =[
-                'status'=>true,
-                'message'=>'Thay đổi thành công',
-                'products'=>$product
-            ];
+        $product->updated_by = Auth::id(); // Current user ID
+        $product->updated_at = now();
+
+        if ($product->save()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Thay đổi thành công',
+                'product' => $product
+            ]);
         }
-        else
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không thể thay đổi',
-                'products'=>null
-            ];
-        }
-        return response()->json($result);
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Không thể thay đổi',
+            'product' => null
+        ]);
     }
+
     public function status($id)
     {
-        $products = Product::find($id);
-        if($products==null)
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không tìm thầy thông tin',
-                'products'=>null
-            ];
-            return response()->json($result);
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy thông tin',
+                'products' => null
+            ]);
         }
-        $products->status = ($products->status==1)?2:1;
-        $products->updated_by =  1;
-        $products->updated_at =  date('Y-m-d H:i:s');
-        if($products->save())
-        {
-            $result =[
-                'status'=>true,
-                'message'=>'Thay đổi thành công',
-                'products'=>$products
-            ];
+
+        $product->status = ($product->status == 1) ? 2 : 1;
+        $product->updated_by = Auth::id(); // Current user ID
+        $product->updated_at = now();
+
+        if ($product->save()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Thay đổi thành công',
+                'product' => $product
+            ]);
         }
-        else
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không thể thay đổi',
-                'products'=>null
-            ];
-        }
-        return response()->json($result);
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Không thể thay đổi',
+            'product' => null
+        ]);
     }
+
     public function restore($id)
     {
-
         $product = Product::find($id);
-        if($product==null)
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không tìm thầy thông tin',
-                'product'=>null
-            ];
-            return response()->json($result);
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy thông tin',
+                'product' => null
+            ]);
         }
+
         $product->status = 2;
-        $product->updated_by =  1;
-        $product->updated_at =  date('Y-m-d H:i:s');
-        if($product->save())
-        {
-            $result =[
-                'status'=>true,
-                'message'=>'Thay đổi thành công',
-                'product'=>$product
-            ];
-        }
-        else
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không thể thay đổi',
-                'category'=>null
-            ];
-        }
-        return response()->json($result);
-}
-public function destroy($id)
-{
-        $product = Product::find($id);
-        if($product==null)
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không tìm thầy thông tin',
-                'product'=>null
-            ];
-            return response()->json($result);
-        }
-        if($product->delete())
-        {
-            $result =[
-                'status'=>true,
-                'message'=>'Xóa thành công',
-                'product'=>$product
-            ];
-        }
-        else
-        {
-            $result =[
-                'status'=>false,
-                'message'=>'Không thể xóa',
-                'product'=>null
-            ];
-        }
-        return response()->json($result);
-}
-public function trash()
-{
-    $products = Product::where('status', '=', 0)
-        ->join('product_images', 'products.id', '=', 'product_images.product_id')
-        ->orderBy('products.created_at', 'DESC') // Order by creation date or another relevant field
-        ->select("products.id", "products.name", "product_images.thumbnail", "products.status") // Adjust fields as necessary
-        ->get();
-    
-    // Prepare the response
-    $result = [
-        'status' => true,
-        'message' => 'Tải dữ liệu thành công',
-        'product' => $products 
-    ];
-    
-    return response()->json($result);
-}
+        $product->updated_by = Auth::id(); // Current user ID
+        $product->updated_at = now();
 
+        if ($product->save()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Thay đổi thành công',
+                'product' => $product
+            ]);
+        }
 
-    public function product_new($limit){
-    $subproductstore = ProductStore::select('product_id', DB::raw('SUM(qty) as qty')) 
-    ->groupBy('products_id');
-    $products = Product::where('products.status', '=', 1)
-    ->joinSub ($subproductstore, 'product_stores', function ($join) {
-        $join -> on('products.id','=','product_stores.product_id');
-        })
-    ->leftJoin('product_sales',function($join){
-        $today=Carbon::now()-> format('Y-md H:i:s');
-        $join->on('products.id','=','product_sales.product_id')
-        ->where([
-            ['product_sales.date_begin','<=',$today],
-            ['product_sales.date_end','>=',$today],
-            ['product_sales.status','=',1]
+        return response()->json([
+            'status' => false,
+            'message' => 'Không thể thay đổi',
+            'product' => null
         ]);
-    })
-    ->with('images')
-    ->orderBy('products.created_at','DESC')
-    ->select('products.id','products.name','products.price','products.slug','product_sales.price_sale')
-    ->limit($limit)
-    ->get();
-    $result=[
-        'status'=>true,
-        'message'=>'Lấy dữ liệu thành công',
-        'products'=>$products,
-    ];
-    return response()->json($result);
+    }
+
+    public function destroy($id)
+    {
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy thông tin',
+                'product' => null
+            ]);
+        }
+
+        if ($product->delete()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Xóa thành công',
+                'product' => $product
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Không thể xóa',
+            'product' => null
+        ]);
+    }
+
+    public function trash()
+    {
+     $product = Product::where('status','=',0)
+         ->orderBy('created_at','ASC')
+         ->select("id","name","status")
+         ->get();
+     $result =[
+         'status'=>true,
+         'message'=>'Tải dữ liệu thành công',
+         'products'=>$product
+     ];
+     return response()->json($result);
+    }
+    
+    public function product_new($limit)
+    {
+        $subproductstore = ProductStore::select('product_id', DB::raw('SUM(qty) as qty')) 
+            ->groupBy('product_id');
+        
+        $products = Product::where('products.status', '=', 1)
+            ->joinSub($subproductstore, 'product_stores', function ($join) {
+                $join->on('products.id', '=', 'product_stores.product_id');
+            })
+            ->leftJoin('product_sales', function($join){
+                $today = Carbon::now()->format('Y-m-d H:i:s');
+                $join->on('products.id', '=', 'product_sales.product_id')
+                     ->where([
+                         ['product_sales.date_begin', '<=', $today],
+                         ['product_sales.date_end', '>=', $today],
+                         ['product_sales.status', '=', 1]
+                     ]);
+            })
+            ->with('images')
+            ->orderBy('products.created_at', 'DESC')
+            ->select('products.id', 'products.name', 'products.price', 'products.slug', 'product_sales.price_sale')
+            ->limit($limit)
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Lấy dữ liệu thành công',
+            'products' => $products,
+        ]);
     }
 }

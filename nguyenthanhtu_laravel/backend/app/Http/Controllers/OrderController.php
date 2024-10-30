@@ -57,58 +57,50 @@ class OrderController extends Controller
         }
         return response()->json($result);
     }
-   public function store(StoreOrderRequest $request)
+    public function store(StoreOrderRequest $request)
     {
+        // Create a new order instance
         $order = new Order();
-        $order->name =  $request->name;
-        $order->user_id =  $request->user_id;
-        $order->email =  $request->email;
-        $order->status =  $request->status;
-        $order->adress =  $request->adress;
-        $order->phone =  $request->phone;
-        $check_save = true;
-        //upload file
-        // $list_exten=['jpg','png','webp','gif'];
-        // if ($request->hasFile('image')) {
-        //     $exten = $request->image->extension();
-        //     if (in_array($exten, array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
-        //         $fileName = date('YmdHis') . '.' . $exten;
-        //         $request->image->move(public_path('image/order'), $fileName);
-        //         $order->image = $fileName;
-        //     }
-        // }
-        $order->created_by = Auth::id() ?? 1;
-        $order->created_at =  date('Y-m-d H:i:s');
-
-        if($check_save == true)
-        {
-            if($order->save())
-            {
-                $result =[
-                'status'=>true,
-                'message'=>'Thêm thành công',
-                'order'=>$order
-                ];
-            }
-            else
-            {
-                $result =[
-                    'status'=>false,
-                    'message'=>'Không thể thêm',
-                    'order'=>null
-                ];
-            }
+        
+        // Fill order properties from request
+        $order->name = $request->name;
+        $order->user_id = $request->user_id;
+        $order->email = $request->email;
+        $order->status = $request->status;
+        $order->address = $request->address; // Corrected the spelling
+        $order->phone = $request->phone;
+    
+        // Optional: Handle file upload if necessary
+        if ($request->hasFile('image')) {
+            $request->validate([
+                'image' => 'image|mimes:jpg,jpeg,png,gif,webp|max:2048', // Validation for image
+            ]);
+            
+            $fileName = time() . '.' . $request->image->extension(); // Use time for unique filename
+            $request->image->move(public_path('images/order'), $fileName);
+            $order->image = $fileName;
         }
-        // else
-        // {
-        //     $result =[
-        //         'status'=>false,
-        //         'message'=>'chưa chọn hình ảnh',
-        //         'order'=>null
-        //     ];
-        // }
-        return response()->json($result);
+    
+        // Set additional fields
+        $order->created_by = $request->user()->id ?? 1; // Using user() method for better clarity
+        $order->created_at = now(); // Use Carbon's now() for better readability
+    
+        // Save the order and return a response
+        if ($order->save()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Order added successfully',
+                'order' => $order,
+            ], 201); // HTTP 201 Created
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to add order',
+            ], 500); // HTTP 500 Internal Server Error
+        }
     }
+    
+    
 
     public function update(UpdateOrderRequest $request, string $id)
     {

@@ -3,45 +3,50 @@ import { useNavigate } from 'react-router-dom';
 import BrandService from '../../../services/BrandService';
 
 function BrandCreate() {
-    const [brand, setbrand] = useState({
-        name: '',       // Thêm trường name
-        slug: '',       // Thêm trường link
-        description: '', // Thêm trường description
+    const [brand, setBrand] = useState({
+        name: '',
+        slug: '', // Slug field
+        description: '',
         image: null,
-        sort_order: '',  // Thêm trường sort_order
-        status: '',      // Có thể là 'active' hoặc 'inactive'
+        sort_order: '',
+        status: '',
     });
     const [error, setError] = useState('');
     const navigate = useNavigate();
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setbrand({
-            ...brand,
-            [name]: value,
-        });
+        const updatedBrand = { ...brand, [name]: value };
+
+        // Generate slug from name
+        if (name === 'name') {
+            updatedBrand.slug = value.toLowerCase().replace(/ /g, '-'); // Create slug from name
+        }
+
+        setBrand(updatedBrand);
     };
 
     const handleFileChange = (e) => {
-        setbrand({
+        setBrand({
             ...brand,
-            image: e.target.files[0], // Đổi từ thumbnail sang image
+            image: e.target.files[0],
         });
     };
 
-    const handleAddbrand = async (e) => {
+    const handleAddBrand = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(); // Tạo form data để gửi kèm hình ảnh
-        formData.append('name', brand.name);  // Gửi trường name
-        formData.append('slug', brand.slug);  // Gửi trường link
-        formData.append('description', brand.description);  // Gửi trường description
-        formData.append('image', brand.image); // Gửi hình ảnh với tên image
-        formData.append('sort_order', brand.sort_order);  // Gửi trường sort_order
+        const formData = new FormData();
+        formData.append('name', brand.name);
+        formData.append('slug', brand.slug); // Include slug
+        formData.append('description', brand.description);
+        formData.append('image', brand.image);
+        formData.append('sort_order', brand.sort_order);
         formData.append('status', brand.status);
 
         try {
-            await BrandService.add(formData); // Gọi API thêm brand
-            navigate('/admin/brand'); // Điều hướng về trang danh sách brand sau khi thêm thành công
+            await BrandService.add(formData);
+            navigate('/admin/brand');
         } catch (error) {
             setError('Có lỗi xảy ra khi thêm brand');
             console.error(error);
@@ -50,12 +55,11 @@ function BrandCreate() {
 
     return (
         <div className="max-w-xl mx-auto mt-10 p-6 bg-gray-100 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-6 text-center">Created brand</h2>
+            <h2 className="text-2xl font-semibold text-gray-700 mb-6 text-center">Tạo Brand</h2>
             {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-            <form onSubmit={handleAddbrand} className="space-y-4">
-
+            <form onSubmit={handleAddBrand} className="space-y-4">
                 <div className="form-group">
-                    <label className="block text-gray-600 mb-1">Tên brand:</label>
+                    <label className="block text-gray-600 mb-1">Tên Brand:</label>
                     <input
                         type="text"
                         name="name"
@@ -67,7 +71,7 @@ function BrandCreate() {
                 </div>
 
                 <div className="form-group">
-                    <label className="block text-gray-600 mb-1">slug:</label>
+                    <label className="block text-gray-600 mb-1">Slug:</label>
                     <input
                         type="text"
                         name="slug"
@@ -93,25 +97,13 @@ function BrandCreate() {
                     <label className="block text-gray-600 mb-1">Hình ảnh:</label>
                     <input
                         type="file"
-                        name="image" // Sử dụng tên image
+                        name="image"
                         accept="image/*"
                         onChange={handleFileChange}
                         required
                         className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
-
-                {/* <div className="form-group">
-                    <label className="block text-gray-600 mb-1">Vị trí:</label>
-                    <input
-                        type="text"
-                        name="position"
-                        value={brand.position}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div> */}
 
                 <div className="form-group">
                     <label className="block text-gray-600 mb-1">Thứ tự:</label>
@@ -143,7 +135,7 @@ function BrandCreate() {
                     type="submit"
                     className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                    Thêm brand
+                    Thêm Brand
                 </button>
             </form>
         </div>

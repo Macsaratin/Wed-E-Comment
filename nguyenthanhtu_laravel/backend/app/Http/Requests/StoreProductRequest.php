@@ -25,23 +25,49 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg|max:2048', 
+            'slug' => 'required|string|max:255|unique:products,slug',
+            'category_id' => 'required|exists:categories,id', // Ensure category exists
+            'brand_id' => 'required|exists:brands,id',       // Ensure brand exists
+            'description' => 'nullable|string',
+            'content' => 'nullable|string',
+            'price' => 'required|numeric|min:0',             // Must be a positive number
+            'status' => 'nullable|boolean',                  // Optional field, accepts 0 or 1
+            'thumbnail.*' => 'required|image|mimes:jpeg,png,jpg|max:2048', // Limit file size to 2MB
         ];
     }
-    
+
+    /**
+     * Custom messages for validation errors.
+     */
     public function messages()
     {
-            return [
-                'name.required' => 'Tên không được để trống'
-            ];
-    
+        return [
+            'name.required' => 'Tên không được để trống',
+            'slug.required' => 'Slug không được để trống',
+            'slug.unique' => 'Slug đã tồn tại, vui lòng chọn slug khác',
+            'category_id.required' => 'Danh mục không được để trống',
+            'category_id.exists' => 'Danh mục không tồn tại',
+            'brand_id.required' => 'Thương hiệu không được để trống',
+            'brand_id.exists' => 'Thương hiệu không tồn tại',
+            'price.required' => 'Giá không được để trống',
+            'price.numeric' => 'Giá phải là một số',
+            'price.min' => 'Giá không thể nhỏ hơn 0',
+            'thumbnail.*.required' => 'Hình ảnh không được để trống',
+            'thumbnail.*.image' => 'Tệp tải lên phải là hình ảnh',
+            'thumbnail.*.mimes' => 'Hình ảnh phải có định dạng jpeg, png hoặc jpg',
+            'thumbnail.*.max' => 'Kích thước hình ảnh không được vượt quá 2MB',
+        ];
     }
+
+    /**
+     * Handle failed validation.
+     */
     public function failedValidation(Validator $validator)
     {
-            throw new HttpResponseException(response()->json([
-                'status'   => false,
-                'message'   => 'Validation errors',
-                'products'      => $validator->errors()
-            ]));
-    }   
+        throw new HttpResponseException(response()->json([
+            'status' => false,
+            'message' => 'Validation errors',
+            'errors' => $validator->errors()  // Renamed key to 'errors' for clarity
+        ], 422));
+    }
 }

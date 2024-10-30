@@ -16,12 +16,13 @@ const Productlist = () => {
             setproducts(result.products);
         })();
     }, [])
-    const deleteProduct = (id) => {
-        axios.get(`http://127.0.0.1:8000/api/product/delete/${id}`)
-            .then(() => {
-                setproducts(Products.filter(products => products.id !== id));
-            })
-            .catch(error => console.log('error:', error));
+    const deleteProduct = async (id) => {
+        try {
+            await axios.get(`http://127.0.0.1:8000/api/product/delete/${id}`);
+            setproducts(Products.filter(products => products.id !== id));
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
     };
     const statusproduct = async (id) => {
         try {
@@ -90,12 +91,17 @@ const Productlist = () => {
                                         <td>{products.name}</td>
                                         <td>{products.catname}</td>
                                         <td className='text-center text-3xl'>
-                                            {jsxStatus}<button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
-                                                <BiShowAlt className='text-sm' />
-                                            </button>
-                                            <button className='bg-blue-500 py-1 px-2 mx-0.5 text-white rounded-md'>
-                                                <GiNotebook className='text-sm' />
-                                            </button>
+                                            {jsxStatus}
+                                            <Link to={`/admin/product/show/${products.id}`} className="text-sm ml-2">
+                                                <button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                                    <BiShowAlt className='text-sm' />
+                                                </button>
+                                            </Link>
+                                            <Link to={`/admin/product/update/${products.id}`} className="text-sm  ml-2">
+                                                <button className='bg-blue-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                                    <GiNotebook className='text-sm' />
+                                                </button>
+                                            </Link>
                                             <button onClick={() => deleteProduct(products.id)} className='bg-red-500 py-1 px-2 mx-0.5 text-white rounded-md'>
                                                 <FaTrash className='text-sm' />
                                             </button>

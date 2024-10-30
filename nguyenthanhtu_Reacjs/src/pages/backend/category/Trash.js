@@ -40,7 +40,7 @@ const Trash = () => {
         <div>
             <div className='flex flex-row justify-center items-center py-4 border rounded-lg mb-4 px-4 bg-white'>
                 <div className='basis-1/2'>
-                    <h1 className='text-2xl uppercase text-green-800'>QUẢN LÝ SẢN PHẨM</h1>
+                    <h1 className='text-2xl uppercase text-green-800'>QUẢN LÝ DANH MUC</h1>
                 </div>
                 <div className='flex gap-2 px-60'>
                     <div className='hover:text-blue-700'>Thêm</div>

@@ -14,8 +14,7 @@ const Banner = () => {
                 const activeBanners = result.banner
                     .filter(banner => banner.status === 1)
                     .sort((a, b) => a.sort_order - b.sort_order); // Sắp xếp theo sort_order
-
-                setBannerData(activeBanners || []); // Đảm bảo rằng bannerData là một mảng
+                setBannerData(activeBanners || []);
             } catch (error) {
                 console.error("Error fetching banner data:", error);
             }
@@ -26,30 +25,18 @@ const Banner = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentIndex((prevIndex) => (prevIndex + 1) % bannerData.length);
-        }, 3000); // Chuyển banner mỗi 3 giây
+        }, 3000);
 
-        return () => clearInterval(interval); // Dọn dẹp interval khi component unmount
-    }, [bannerData.length]); // Chỉ chạy lại khi độ dài bannerData thay đổi
+        return () => clearInterval(interval);
+    }, [bannerData.length]);
 
     if (!bannerData.length) {
-        return <div>Loading...</div>; // Optional loading state
+        return <div>Loading...</div>;
     }
-
-    // const nextBanner = () => {
-    //     setCurrentIndex((prevIndex) => (prevIndex + 1) % bannerData.length);
-    // };
-
-    // const prevBanner = () => {
-    //     setCurrentIndex((prevIndex) => (prevIndex - 1 + bannerData.length) % bannerData.length);
-    // };
-
     return (
         <div className="bg-gray-100 py-12">
             <div className="lg:max-w-[1280px] md:max-w-[696px] max-w-[343px] mx-auto bg-white lg:px-20 md:px-6">
                 <div className="flex justify-between items-center">
-                    {/* <button onClick={prevBanner} className="px-4 py-2 bg-gray-800 text-white rounded">
-                        <i className="fa fa-chevron-left" aria-hidden="true"></i>
-                    </button> */}
                     <div className="flex justify-center items-center py-4">
                         <img
                             src={`http://localhost:8000/images/banner/${bannerData[currentIndex].image}`}
@@ -65,9 +52,6 @@ const Banner = () => {
                             </p>
                         </div>
                     </div>
-                    {/* <button onClick={nextBanner} className="px-4 py-2 bg-gray-800 text-white rounded">
-                        <i className="fa fa-chevron-right" aria-hidden="true"></i>
-                    </button> */}
                 </div>
             </div>
         </div>

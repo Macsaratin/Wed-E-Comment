@@ -19,10 +19,14 @@ import Config from '../pages/backend/config/Configlist';
 import Dashboard from '../pages/backend/dashboard/index';
 import Menu from '../pages/backend/menu/Menulist';
 import Post from '../pages/backend/post/Postlist';
-// ----------
+// ----------Product
 import CreateProduct from '../pages/backend/product/CreateProduct';
 import Product from '../pages/backend/product/Productlist';
+import ShowProduct from '../pages/backend/product/ProductShow';
 import TrashProduct from '../pages/backend/product/Trash';
+import UpdateProduct from '../pages/backend/product/UpdateProduct';
+
+
 // --------------
 
 import ProductImage from '../pages/backend/productimage/ProductImagelist';
@@ -68,6 +72,8 @@ const RouterBackend = [
             { path: "", element: <Product /> },
             { path: "create", element: <CreateProduct /> },
             { path: "trash", element: <TrashProduct /> },
+            { path: "show/:id", element: <ShowProduct /> },
+            { path: "update/:id", element: <UpdateProduct /> },
         ],
     },
     { path: "productimage", element: <ProductImage /> },

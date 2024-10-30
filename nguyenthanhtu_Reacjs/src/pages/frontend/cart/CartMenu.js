@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function CartMenu() {
+function Cart() {
     const [show, setShow] = useState(false);
     return (
         <>
@@ -157,4 +157,4 @@ function CartMenu() {
     );
 }
 
-export default CartMenu;
+export default Cart;

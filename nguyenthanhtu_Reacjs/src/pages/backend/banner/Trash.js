@@ -70,7 +70,6 @@ const Trash = () => {
                                     <FaToggleOff className='text-sm' />
                                 </button>
                             );
-
                             return (
                                 <tr key={index}>
                                     <td className='text-center'>

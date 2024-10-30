@@ -64,8 +64,6 @@ Route::get('/products/{id}', 'App\Http\Controllers\ProductController@show');
 Route::get('/product/hot-deal', 'App\Http\Controllers\ProductDealsController@hotDeals');
 Route::post('/products', 'App\Http\Controllers\ProductController@store');
 Route::delete('/products/{id}', 'App\Http\Controllers\ProductController@destroy');
-
-
 // Product Orders
 Route::post('/stripe', 'App\Http\Controllers\ProductOrdersController@stripePost');
 Route::post('/product/orders', 'App\Http\Controllers\ProductOrdersController@store');
@@ -95,7 +93,7 @@ Route::get('/product/stocks/{id}', 'App\Http\Controllers\StockController@show');
 // Newsletter
 Route::post('/newsletter', 'App\Http\Controllers\NewsLetterController@store');
 
-Route::resource('product', ProductAdminController::class);
+// Route::resource('product', ProductAdminController::class);
 
 Route::get('admin/login',[UserController::class, 'login']);
 Route::get('admin/forget',[UserController::class, 'getforget']);
@@ -163,7 +161,6 @@ Route::prefix('contact')->group(function(){
 	Route::get('/restore/{id}',[ContactController::class, 'restore']);
 	Route::delete('/destroy/{id}',[ContactController::class, 'destroy']);
 });
-
 Route::prefix('post')->group(function(){
 	Route::get('/',[PostController::class, 'index']);
 	Route::get('/trash',[PostController::class, 'trash']);

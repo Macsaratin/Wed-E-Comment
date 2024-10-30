@@ -27,7 +27,7 @@ class BannerController extends Controller
  public function trash()
  {
      $banner = Banner::where('status','=',0)
-         ->orderBy('sort_order','ASC')
+         ->orderBy('created_at','ASC')
          ->select("id","name","link","image","description","status","position")
          ->get();
      $result =[

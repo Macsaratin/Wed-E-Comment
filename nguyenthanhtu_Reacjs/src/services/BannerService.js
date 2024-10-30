@@ -11,7 +11,7 @@ const BannerService = {
     // Thêm một banner mới
     add: async (banner) => {
         console.log('Data to be sent:', banner);
-        const response = await httpAxios.post('banner/store', banner);
+        const response = await httpAxios.post('/banner/store', banner);
         console.log('Response from API:', response);
         return response.data;
     },
