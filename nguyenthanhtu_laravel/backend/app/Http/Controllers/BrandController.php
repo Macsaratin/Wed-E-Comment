@@ -119,11 +119,11 @@ class BrandController extends Controller
             ]);
         }
         // Cập nhật dữ liệu
-        $brand->name = $request->name;
-        $brand->position = $request->position;
-        $brand->slug = $request->slug;
-        $brand->status = $request->status;
-        $brand->sort_order = $request->sort_order;
+        $brand->name =  $request->name;
+        $brand->slug =  $request->slug;
+        $brand->status =  $request->status;
+        $brand->sort_order =  $request->sort_order;
+        $brand->description =  $request->description;
 
         if ($request->hasFile('image')) {
             $exten = $request->image->extension();

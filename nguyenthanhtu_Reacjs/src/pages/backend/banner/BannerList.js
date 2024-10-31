@@ -87,10 +87,13 @@ const BannerList = () => {
                                         <td>{banner.name}</td>
                                         <td>{banner.position}</td>
                                         <td className='text-center text-3xl'>
-                                            {jsxStatus}<button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
-                                                <BiShowAlt className='text-sm' />
-                                            </button>
-                                            <Link to="/admin/banner/edit" className="text-sm  ml-2">
+                                            {jsxStatus}
+                                            <Link to={`/admin/banner/show/${banner.id}`} className="text-sm  ml-2">
+                                                <button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                                    <BiShowAlt className='text-sm' />
+                                                </button>
+                                            </Link>
+                                            <Link to={`/admin/banner/update/${banner.id}`} className="text-sm  ml-2">
                                                 <button className='bg-blue-500 py-1 px-2 mx-0.5 text-white rounded-md'>
                                                     <GiNotebook className='text-sm' />
                                                 </button></Link>

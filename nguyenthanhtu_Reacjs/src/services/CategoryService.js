@@ -15,7 +15,11 @@ const CategoryService = {
     },
     update: async (id, category) => {
         console.log('Data to be updated:', category);  // Debug log
-        return await httpAxios.post(`category/update/${id}`, category);
+        return await httpAxios.post(`/category/update/${id}`, category);
+    },
+    show: async (id, category) => {
+        console.log('Data to be show:', category);  // Debug log
+        return await httpAxios.get(`/category/show/${id}`, category);
     },
 }
 

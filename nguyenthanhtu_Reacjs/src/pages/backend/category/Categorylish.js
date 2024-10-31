@@ -87,10 +87,13 @@ const Categorylish = () => {
                                         <td><img src={`http://localhost:8000/images/category/${category.image}`} alt={category.name} width="100" height="100" className='py-2' /></td>
                                         <td>{category.name}</td>
                                         <td className='text-center text-3xl'>
-                                            {jsxStatus}<button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
-                                                <BiShowAlt className='text-sm' />
-                                            </button>
-                                            <Link to="/admin/category/edit" className="text-sm  ml-2">
+                                            {jsxStatus}
+                                            <Link to={`show/${category.id}`} className="text-sm  ml-2">
+                                                <button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                                    <BiShowAlt className='text-sm' />
+                                                </button>
+                                            </Link>
+                                            <Link to={`update/${category.id}`} className="text-sm  ml-2">
                                                 <button className='bg-blue-500 py-1 px-2 mx-0.5 text-white rounded-md'>
                                                     <GiNotebook className='text-sm' />
                                                 </button>

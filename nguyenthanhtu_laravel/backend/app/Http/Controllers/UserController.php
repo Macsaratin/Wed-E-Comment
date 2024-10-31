@@ -13,8 +13,8 @@ class UserController extends Controller
     public function index()
     {
         $user =User::where('status','!=',0)
-            ->orderBy('site_name','ASC')
-            ->select("id","email","phones","status","address","hotline")
+            ->orderBy('id','ASC')
+            ->select("id",'name','fullname','password','gender','thumbnail','email','phone','address')
             ->get();
         $result =[
             'status'=>true,
@@ -27,7 +27,7 @@ class UserController extends Controller
     {
         $user =User::where('status','=',0)
         ->orderBy('site_name','ASC')
-        ->select("id","email","phones","status","address","hotline")
+        ->select("id","email","phones","status","address")
         ->get();
         $result =[
             'status'=>true,

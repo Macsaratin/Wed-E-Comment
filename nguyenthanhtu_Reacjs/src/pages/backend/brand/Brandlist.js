@@ -89,12 +89,17 @@ const Brandlist = () => {
                                         <td>{brand.name}</td>
                                         <td>{brand.position}</td>
                                         <td className='text-center text-3xl'>
-                                            {jsxStatus}<button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
-                                                <BiShowAlt className='text-sm' />
-                                            </button>
-                                            <button className='bg-blue-500 py-1 px-2 mx-0.5 text-white rounded-md'>
-                                                <GiNotebook className='text-sm' />
-                                            </button>
+                                            {jsxStatus}
+                                            <Link to={`/admin/brand/show/${brand.id}`} >
+                                                <button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                                    <BiShowAlt className='text-sm' />
+                                                </button>
+                                            </Link>
+                                            <Link to={`/admin/brand/update/${brand.id}`} >
+                                                <button className='bg-blue-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                                    <GiNotebook className='text-sm' />
+                                                </button>
+                                            </Link>
                                             <button onClick={() => deletebrand(brand.id)} className='bg-red-500 py-1 px-2 mx-0.5 text-white rounded-md'>
                                                 <FaTrash className='text-sm' />
                                             </button>

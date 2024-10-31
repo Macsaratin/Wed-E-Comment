@@ -167,7 +167,7 @@ const Product = () => {
                                 </div>
                             </div>
                             <p className="font-normal text-xl leading-5 text-gray-800 md:mt-6 mt-4">{product.name}</p>
-                            <p className="font-semibold text-xl leading-5 text-gray-800 mt-4">${product.price.toLocaleString('vi-VN')} ₫</p>
+                            <p className="font-semibold text-xl leading-5 text-gray-800 mt-4">{product.price.toLocaleString('vi-VN')} ₫</p>
                         </div>
                     ))}
                 </div>

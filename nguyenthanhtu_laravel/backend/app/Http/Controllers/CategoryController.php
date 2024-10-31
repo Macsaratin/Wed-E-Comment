@@ -131,7 +131,7 @@ class CategoryController extends Controller
             $exten = $request->image->extension();
             if (in_array($exten, array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
                 $fileName = date('YmdHis') . '.' . $exten;
-                $request->image->move(public_path('image/category'), $fileName);
+                $request->image->move(public_path('images/category'), $fileName);
                 $category->image = $fileName;
             }
         }

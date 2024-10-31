@@ -6,54 +6,60 @@ import ShowBanner from '../pages/backend/banner/showBanner';
 import TrashBanner from '../pages/backend/banner/Trash';
 // /---Brand
 import CreateBrand from '../pages/backend/brand/BrandCreate';
+import EditBrand from '../pages/backend/brand/BrandEdit';
 import Brandlist from '../pages/backend/brand/Brandlist';
+import ShowBrand from '../pages/backend/brand/Show';
 import TrashBrand from '../pages/backend/brand/Trash';
-
 // /----Category
 import Categories from '../pages/backend/category/Categorylish';
 import CreateCategory from '../pages/backend/category/CreateCategory';
 import EditCategory from '../pages/backend/category/EditCategory';
+import ShowCategories from '../pages/backend/category/Show';
 import TrashCategories from '../pages/backend/category/Trash';
+
 // ---
 import Config from '../pages/backend/config/Configlist';
 import Dashboard from '../pages/backend/dashboard/index';
 import Menu from '../pages/backend/menu/Menulist';
 import Post from '../pages/backend/post/Postlist';
+
 // ----------Product
 import CreateProduct from '../pages/backend/product/CreateProduct';
 import Product from '../pages/backend/product/Productlist';
 import ShowProduct from '../pages/backend/product/ProductShow';
 import TrashProduct from '../pages/backend/product/Trash';
 import UpdateProduct from '../pages/backend/product/UpdateProduct';
-
-
 // --------------
-
 import ProductImage from '../pages/backend/productimage/ProductImagelist';
 import ProductPrice from '../pages/backend/productprice/ProductSale';
 import ProductStore from '../pages/backend/productstore/ProductStore';
 import Topic from '../pages/backend/topic/Topiclist';
-
-
+//------------login
+// import LoginAdmin from '../pages/backend/Login';
 
 const RouterBackend = [
+    // { path: "/login", element: <LoginAdmin /> },
     { path: "/admin", element: <Dashboard /> },
     {
-        path: "banner",
+        path: "banner/",
         children: [
             { path: "", element: <BannerList /> },
             { path: "trash", element: <TrashBanner /> },
             { path: "create", element: <CreateBanner /> },
-            { path: "show", element: <ShowBanner /> },
-            { path: "edit", element: <EditBanner /> },
+            { path: "show/:id", element: <ShowBanner /> },
+            { path: "update/:id", element: <EditBanner /> },
         ],
     },
     {
-        path: "brand",
+        path: "brand/",
         children: [
             { path: "", element: <Brandlist /> },
             { path: "trash", element: <TrashBrand /> },
             { path: "create", element: <CreateBrand /> },
+            { path: "update/:id", element: <EditBrand /> },
+            { path: "show/:id", element: <ShowBrand /> },
+
+
         ],
     },
     {
@@ -62,7 +68,8 @@ const RouterBackend = [
             { path: "", element: <Categories /> },
             { path: "trash", element: <TrashCategories /> },
             { path: "create", element: <CreateCategory /> },
-            { path: "edit", element: <EditCategory /> },
+            { path: "update/:id", element: <EditCategory /> },
+            { path: "show/:id", element: <ShowCategories /> },
         ],
     },
 
