@@ -1,4 +1,4 @@
-import React, { toast, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BrandService from '../../../services/BrandService';
 import CategoryService from '../../../services/CategoryService';
@@ -88,7 +88,6 @@ const CreateProduct = () => {
         try {
             const result = await ProductService.add(payload);
             if (result.data.status) {
-                toast.success('Product added successfully!');
                 setFormData({
                     name: '',
                     price: '',
@@ -136,13 +135,6 @@ const CreateProduct = () => {
                     ))}
                     <div>
                         <label htmlFor="category_id" className="block mb-2">Danh mục</label>
-                        <input
-                            type="text"
-                            placeholder="Tìm danh mục"
-                            value={searchCategory}
-                            onChange={(e) => setSearchCategory(e.target.value)}
-                            className="border rounded p-2 w-full mb-2"
-                        />
                         <select
                             id="category_id"
                             name="category_id"
@@ -159,13 +151,6 @@ const CreateProduct = () => {
                     </div>
                     <div>
                         <label htmlFor="brand_id" className="block mb-2">Thương hiệu</label>
-                        <input
-                            type="text"
-                            placeholder="Tìm thương hiệu"
-                            value={searchBrand}
-                            onChange={(e) => setSearchBrand(e.target.value)}
-                            className="border rounded p-2 w-full mb-2"
-                        />
                         <select
                             id="brand_id"
                             name="brand_id"

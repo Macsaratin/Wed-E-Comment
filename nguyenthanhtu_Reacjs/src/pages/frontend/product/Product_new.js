@@ -67,7 +67,18 @@ const ProductNew = () => {
                             </div>
                         </div>
                         <p className="font-normal text-xl leading-5 text-gray-800 md:mt-6 mt-4">{products.name}</p>
-                        <p className="font-semibold text-xl leading-5 text-gray-800 mt-4">{products.price.toLocaleString('vi-VN')} ₫</p>
+                        <p className="font-semibold text-xl leading-5 mt-4">
+                            {products.price && (
+                                <span className="text-green-600">
+                                    {products.price.toLocaleString('vi-VN')} ₫
+                                </span>
+                            )}
+                            {products.price_sale && (
+                                <span className="text-red-600 ml-2">
+                                    {products.price_sale.toLocaleString('vi-VN')} ₫
+                                </span>
+                            )}
+                        </p>
                     </div>
                 ))}
             </div>

@@ -38,6 +38,7 @@ const ProductDetail = () => {
 
         fetchProduct();
     }, [id]);
+
     const addToBag = async () => {
         setIsAdding(true);
         try {
@@ -84,7 +85,8 @@ const ProductDetail = () => {
     if (error) return <div className="text-red-500 text-center">{error}</div>;
     if (!product) return <div>No product found.</div>;
 
-    const totalPrice = (product.price * quantity).toLocaleString('vi-VN');
+    const priceToUse = product.price_sale > 0 ? product.price_sale : product.price;
+    const totalPrice = (priceToUse * quantity).toLocaleString('vi-VN');
 
     return (
         <>
@@ -116,6 +118,9 @@ const ProductDetail = () => {
                         <p className="text-lg"><strong>Brand:</strong> {product.brandname}</p>
                         <p className="text-lg"><strong>Description:</strong> {product.description}</p>
                         <p className="text-lg"><strong>Price:</strong> {product.price.toLocaleString('vi-VN')} ₫</p>
+                        {product.price_sale > 0 && (
+                            <p className="text-lg text-red-600"><strong>Sale Price:</strong> {product.price_sale.toLocaleString('vi-VN')} ₫</p>
+                        )}
                         <p className="text-lg"><strong>Total Price:</strong> {totalPrice} ₫</p>
                     </div>
                     <div className="flex items-center mb-4">

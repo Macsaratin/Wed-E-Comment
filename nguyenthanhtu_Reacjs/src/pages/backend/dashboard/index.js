@@ -4,6 +4,7 @@ const dashboard = () => {
     return (
         <>
             <Outlet />
+
         </>
     );
 }

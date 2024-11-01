@@ -1,8 +1,10 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { BiShowAlt } from "react-icons/bi";
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa';
 import { FaTrash } from "react-icons/fa6";
 import { GiNotebook } from "react-icons/gi";
+import { Link } from 'react-router-dom';
 import ProductSaleSerice from '../../../services/ProductSaleSerice';
 
 const ProductSale = () => {
@@ -13,6 +15,27 @@ const ProductSale = () => {
             setproducts(result.productSale);
         })();
     }, [])
+    const statusproduct = async (id) => {
+        try {
+            await axios.get(`http://127.0.0.1:8000/api/productsale/status/${id}`);
+            setproducts(products.map(productSale => {
+                if (productSale.id === id) {
+                    productSale.status = (productSale.status === 1) ? 0 : 1;
+                }
+                return productSale;
+            }));
+        } catch (error) {
+            console.error('Error changing product status:', error);
+        }
+    };
+    const deleteProduct = async (id) => {
+        try {
+            await axios.get(`http://127.0.0.1:8000/api/productsale/delete/${id}`);
+            setproducts(products.filter(productSale => productSale.id !== id));
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
+    };
     return (
         <div>
             <div className='flex flex-row justify-center items-center py-4 border rounded-lg mb-4 px-4 bg-white'>
@@ -20,7 +43,9 @@ const ProductSale = () => {
                     <h1 className='text-2xl uppercase text-green-800'>QUẢN LÝ SAN PHAM</h1>
                 </div>
                 <div className='flex gap-2 px-60 '>
-                    <div className='hover:text-blue-700'>Thêm</div>
+                    <Link to='/admin/productsale/create'>
+                        <div className='hover:text-blue-700'>Thêm</div>
+                    </Link>
                     <div className='hover:text-blue-700'>xoá</div>
                 </div>
             </div>
@@ -44,12 +69,12 @@ const ProductSale = () => {
                             products.map((productSale, index) => {
                                 var jsxStatus = ``;
                                 if (productSale.status === 1) {
-                                    jsxStatus = <button className='bg-green-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                    jsxStatus = <button onClick={() => statusproduct(productSale.id)} className='bg-green-500 py-1 px-2 mx-0.5 text-white rounded-md'>
                                         <FaToggleOn className='text-sm' />
                                     </button>;
                                 }
                                 else {
-                                    jsxStatus = <button className='bg-red-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                    jsxStatus = <button onClick={() => statusproduct(productSale.id)} className='bg-red-500 py-1 px-2 mx-0.5 text-white rounded-md'>
                                         <FaToggleOff className='text-sm' />
                                     </button>;
                                 }
@@ -63,13 +88,16 @@ const ProductSale = () => {
                                         <td>{productSale.date_end}</td>
 
                                         <td className='text-center text-3xl'>
-                                            {jsxStatus}<button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
-                                                <BiShowAlt className='text-sm' />
-                                            </button>
+                                            {jsxStatus}
+                                            <Link to={`/admin/productsale/show/${productSale.id}`}>
+                                                <button className='bg-sky-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                                    <BiShowAlt className='text-sm' />
+                                                </button>
+                                            </Link>
                                             <button className='bg-blue-500 py-1 px-2 mx-0.5 text-white rounded-md'>
                                                 <GiNotebook className='text-sm' />
                                             </button>
-                                            <button className='bg-red-500 py-1 px-2 mx-0.5 text-white rounded-md'>
+                                            <button onClick={() => deleteProduct(productSale.id)} className='bg-red-500 py-1 px-2 mx-0.5 text-white rounded-md'>
                                                 <FaTrash className='text-sm' />
                                             </button>
                                         </td>

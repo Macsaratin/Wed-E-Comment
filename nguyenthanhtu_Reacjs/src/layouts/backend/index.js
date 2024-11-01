@@ -106,7 +106,7 @@ function Index() {
                                     <polyline points="4 12 12 16 20 12" />
                                     <polyline points="4 16 12 20 20 16" />
                                 </svg>
-                                <span className="text-sm  ml-2">ProductSale</span>
+                                <Link to="/admin/productsale" className="text-sm  ml-2">productsale</Link>
                             </div>
                         </li>
                         <li className="flex w-full justify-between text-gray-200 hover:text-gray-500 cursor-pointer items-center mb-6">

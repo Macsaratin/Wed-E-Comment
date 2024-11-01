@@ -40,8 +40,13 @@ import Postlist from '../pages/backend/post/Postlist';
 import ShowPost from '../pages/backend/post/show';
 import TrashPost from '../pages/backend/post/Trash';
 import EditPost from '../pages/backend/post/Update';
-//----
-import ProductPrice from '../pages/backend/productprice/ProductSale';
+//---Sale
+import CreateProductPrice from '../pages/backend/productprice/Create';
+import ProductSale from '../pages/backend/productprice/ProductSale';
+import ShowProductPrice from '../pages/backend/productprice/Show';
+import TrashProductPrice from '../pages/backend/productprice/Trash';
+import UpdateProductPrice from '../pages/backend/productprice/Update';
+//----------
 import ProductStore from '../pages/backend/productstore/ProductStore';
 //--------
 import CreateTopic from '../pages/backend/topic/Create';
@@ -97,7 +102,16 @@ const RouterBackend = [
             { path: "update/:id", element: <UpdateProduct /> },
         ],
     },
-    { path: "productsale", element: <ProductPrice /> },
+    {
+        path: "productsale",
+        children: [
+            { path: "", element: <ProductSale /> },
+            { path: "create", element: <CreateProductPrice /> },
+            { path: "trash", element: <TrashProductPrice /> },
+            { path: "show/:id", element: <ShowProductPrice /> },
+            { path: "update/:id", element: <UpdateProductPrice /> },
+        ]
+    },
     { path: "productstore", element: <ProductStore /> },
     { path: "menu", element: <Menu /> },
     { path: "config", element: <Config /> },

@@ -23,6 +23,7 @@ class ProductController extends Controller
             ->join('product_images', 'products.id', '=', 'product_images.product_id')
             ->join('categories', 'products.category_id', '=', 'categories.id')
             ->join('brands', 'products.brand_id', '=', 'brands.id')
+            // ->join ('product_sales','products.id','=','product_sales.product_id')
             ->select(
                 "products.id",
                 "products.name",
@@ -32,6 +33,7 @@ class ProductController extends Controller
                 "products.price",
                 "product_images.thumbnail",
                 "products.created_at",
+                // "product_sales.price_sale",
             )
             ->get();
             foreach ($products as $product) {
@@ -325,5 +327,33 @@ public function update(UpdateProductRequest $request, $id)
             'message' => 'Lấy dữ liệu thành công',
             'products' => $products,
         ]);
+    }
+    public function product_sale ()
+    {
+        $subproductstore = ProductStore::select('product_id', DB::raw('SUM(qty) as qty'))
+            ->groupBy('product_id');
+        $products = Product::where('products.status', '=', 1)
+            ->joinSub($subproductstore, 'product_stores', function ($join) {
+                $join->on('products.id', '=', 'product_stores.product_id');
+            })
+            ->join('product_sales', function ($join) {
+            $today = Carbon::now()->format('Y-m-d H:i:s');
+            $join->on ('products.id', '=', 'product_sales.product_id')
+                ->where([
+                    ['product_sales.date_begin', '<=', $today],
+                    ['product_sales.date_end', '>=', $today],
+                    ['product_sales.status',1]
+                ]);
+            })
+            ->with('images')
+            ->orderBy('product_sales.price_sale', 'DESC')
+            ->select("products.id", "products.name", "products.price", "products.slug", "product_sales.price_sale")
+            ->get();
+        $result = [
+            'status' => true,
+            'message' => 'Tải dữ liệu thành công',
+            'products' => $products,
+        ];
+        return response()->json ($result);
     }
 }

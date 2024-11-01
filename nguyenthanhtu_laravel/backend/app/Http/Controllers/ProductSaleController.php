@@ -12,9 +12,12 @@ class ProductSaleController extends Controller
 {
     public function index()
     {
-        $productSale =ProductSale::where('status','!=',0)
-            ->orderBy('product_id','ASC')
-            ->select("id","price_sale","status","date_begin","date_end")
+        $productSale =ProductSale::where('product_sales.status','!=',0)
+            ->orderBy('product_sales.product_id','ASC')
+            ->join ('products','products.id','=','product_sales.product_id')
+            ->select("product_sales.id","product_sales.price_sale",
+            "product_sales.status","product_sales.date_begin","product_sales.date_end",
+            "products.name as productname")
             ->get();
         $result =[
             'status'=>true,
@@ -60,27 +63,14 @@ class ProductSaleController extends Controller
    public function store(StoreProductSaleRequest $request)
     {
         $productSale = new ProductSale();
-        $productSale->name =  $request->name;
         $productSale->price_sale =  $request->price_sale;
         $productSale->status =  $request->status;
         $productSale->date_begin =  $request->date_begin;
         $productSale->date_end =  $request->date_end;
         $productSale->product_id =  $request->product_id;
-
-        $check_save = true;
-        //upload file
-        // $list_exten=['jpg','png','webp','gif'];
-        if ($request->hasFile('image')) {
-            $exten = $request->image->extension();
-            if (in_array($exten, array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
-                $fileName = date('YmdHis') . '.' . $exten;
-                $request->image->move(public_path('image/productSale'), $fileName);
-                $productSale->image = $fileName;
-            }
-        }
+        $check_save = true;        
         $productSale->created_by = Auth::id() ?? 1;
         $productSale->created_at =  date('Y-m-d H:i:s');
-
         if($check_save == true)
         {
             if($productSale->save())
