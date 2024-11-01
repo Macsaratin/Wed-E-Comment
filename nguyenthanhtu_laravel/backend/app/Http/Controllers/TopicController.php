@@ -14,7 +14,7 @@ class TopicController extends Controller
     {
         $topic = Topic::where('status','!=',0)
             ->orderBy('sort_order','ASC')
-            ->select("id","name","status","slug")
+            ->select("id","name","status","sort_order")
             ->get();
         $result =[
             'status'=>true,
@@ -57,7 +57,7 @@ class TopicController extends Controller
         }
         return response()->json($result);
     }
-    public function store(Request $request)
+    public function store(StoreTopicRequest $request)
     {
         $topic = new Topic();
         $topic->name =  $request->name;
@@ -98,32 +98,26 @@ class TopicController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy dữ liệu',
-            ]);
+            ], 404);
         }
-        // Cập nhật dữ liệu
-        $topic->name =  $request->name;
-        $topic->description =  $request->description;
-        $topic->slug =  $request->slug;
-        $topic->status =  $request->status;
-        $topic->sort_order =  $request->sort_order;
-        // if ($request->hasFile('image')) {
-        //     $exten = $request->image->extension();
-        //     if (in_array($exten, array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
-        //         $fileName = date('YmdHis') . '.' . $exten;
-        //         $request->image->move(public_path('image/topic'), $fileName);
-        //         $topic->image = $fileName;
-        //     }
-        // }
-        $topic->created_at = date('Ymd H:i:s');
-        $topic->created_by = Auth::id() ?? 1;
+    
+        // Update topic data
+        $topic->name = $request->name;
+        $topic->slug = $request->slug;
+        $topic->description = $request->description;
+        $topic->status = $request->status;
+        $topic->sort_order = $request->sort_order;
+        $topic->updated_at = now(); // Use the current timestamp for updated_at
+        $topic->created_by = Auth::id() ?? 1; // You may want to change this if the creator should remain unchanged
         $topic->save();
-
+    
         return response()->json([
             'status' => true,
             'message' => 'Cập nhật thành công',
             'topic' => $topic,
         ]);
     }
+    
 
     public function status(string $id)
     {

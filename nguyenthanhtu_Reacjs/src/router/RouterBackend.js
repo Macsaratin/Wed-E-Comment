@@ -16,12 +16,17 @@ import CreateCategory from '../pages/backend/category/CreateCategory';
 import EditCategory from '../pages/backend/category/EditCategory';
 import ShowCategories from '../pages/backend/category/Show';
 import TrashCategories from '../pages/backend/category/Trash';
-
 // ---
 import Config from '../pages/backend/config/Configlist';
+//-----contact
+import Contact from '../pages/backend/contact/Contactlist';
+import ReplyContact from '../pages/backend/contact/Reply';
+import ShowContact from '../pages/backend/contact/Show';
+import TrashContact from '../pages/backend/contact/Trash';
+
+//---------
 import Dashboard from '../pages/backend/dashboard/index';
 import Menu from '../pages/backend/menu/Menulist';
-import Post from '../pages/backend/post/Postlist';
 
 // ----------Product
 import CreateProduct from '../pages/backend/product/CreateProduct';
@@ -30,10 +35,20 @@ import ShowProduct from '../pages/backend/product/ProductShow';
 import TrashProduct from '../pages/backend/product/Trash';
 import UpdateProduct from '../pages/backend/product/UpdateProduct';
 // --------------
-import ProductImage from '../pages/backend/productimage/ProductImagelist';
+import CreatePost from '../pages/backend/post/Create';
+import Postlist from '../pages/backend/post/Postlist';
+import ShowPost from '../pages/backend/post/show';
+import TrashPost from '../pages/backend/post/Trash';
+import EditPost from '../pages/backend/post/Update';
+//----
 import ProductPrice from '../pages/backend/productprice/ProductSale';
 import ProductStore from '../pages/backend/productstore/ProductStore';
+//--------
+import CreateTopic from '../pages/backend/topic/Create';
+import ShowTopic from '../pages/backend/topic/Show';
 import Topic from '../pages/backend/topic/Topiclist';
+import TrashTopic from '../pages/backend/topic/Trash';
+import EditTopic from '../pages/backend/topic/Update';
 //------------login
 // import LoginAdmin from '../pages/backend/Login';
 
@@ -72,7 +87,6 @@ const RouterBackend = [
             { path: "show/:id", element: <ShowCategories /> },
         ],
     },
-
     {
         path: "product",
         children: [
@@ -83,13 +97,42 @@ const RouterBackend = [
             { path: "update/:id", element: <UpdateProduct /> },
         ],
     },
-    { path: "productimage", element: <ProductImage /> },
     { path: "productsale", element: <ProductPrice /> },
     { path: "productstore", element: <ProductStore /> },
     { path: "menu", element: <Menu /> },
     { path: "config", element: <Config /> },
-    { path: "post", element: <Post /> },
-    { path: "topic", element: <Topic /> },
+    //--------post
+    {
+        path: "post/",
+        children: [
+            { path: "", element: <Postlist /> },
+            { path: "trash", element: <TrashPost /> },
+            { path: "create", element: <CreatePost /> },
+            { path: "update/:id", element: <EditPost /> },
+            { path: "show/:id", element: <ShowPost /> },
+        ]
+    },
+    //---------
+    {
+        path: "topic",
+        children: [
+            { path: "", element: <Topic /> },
+            { path: "show/:id", element: <ShowTopic /> },
+            { path: "create", element: <CreateTopic /> },
+            { path: "update/:id", element: <EditTopic /> },
+            { path: "trash", element: <TrashTopic /> },
+        ]
+    },
+    //--------contact
+    {
+        path: "contact",
+        children: [
+            { path: "", element: <Contact /> },
+            { path: 'show/:id', element: <ShowContact /> },
+            { path: 'reply/:id', element: <ReplyContact /> },
+            { path: 'trash', element: <TrashContact /> },
+        ]
+    }
 ];
 
 export default RouterBackend;

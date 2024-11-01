@@ -29,8 +29,8 @@ class ContactController extends Controller
     public function trash()
     {
         $contact =Contact::where('status','=',0)
-            ->orderBy('sort_order','ASC')
-            ->select("id","name","image","status","slug","parent_id","description")
+            ->orderBy('id','ASC')
+            ->select("id","name","status")
             ->get();
         $result =[
             'status'=>true,

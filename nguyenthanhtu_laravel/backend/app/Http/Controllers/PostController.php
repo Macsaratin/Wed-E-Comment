@@ -13,17 +13,28 @@ class PostController extends Controller
 {
     public function index()
     {
-        $post =Post::where('status','!=',0)
-            ->orderBy('topic_id','ASC')
-            ->select("id","title","status","content",'description','type',"thumbnail")
+        $post = Post::where('posts.status', '!=', 0)
+            ->orderBy('posts.id', 'ASC')
+            ->join('topic', 'posts.topic_id', '=', 'topic.id')
+            ->select(
+                'posts.id',
+                'posts.title',
+                'posts.status',
+                'posts.content',
+                'posts.thumbnail',
+                'topic.name as topic_name'
+            )
             ->get();
-        $result =[
-            'status'=>true,
-            'message'=>'Tải dữ liệu thành công',
-            'post'=>$post
+    
+        $result = [
+            'status' => true,
+            'message' => 'Tải dữ liệu thành công',
+            'post' => $post 
         ];
+    
         return response()->json($result);
     }
+    
     public function trash()
     {
         $post =Post::where('status','=',0)
@@ -113,6 +124,7 @@ class PostController extends Controller
 
     public function update(UpdatePostRequest $request, string $id)
     {
+        // Find the post by ID
         $post = Post::find($id);
         if (!$post) {
             return response()->json([
@@ -120,32 +132,41 @@ class PostController extends Controller
                 'message' => 'Không tìm thấy dữ liệu',
             ]);
         }
-        // Cập nhật dữ liệu
-        $post->name = $request->name;
-        $post->position = $request->position;
-        $post->link = $request->link;
+    
+        // Update the post attributes
+        $post->title = $request->title;
+        $post->topic_id = $request->topic_id;
+        $post->content = $request->input('content', null);
         $post->status = $request->status;
         $post->description = $request->description;
-        $post->sort_post = $request->sort_post;
-
+        $post->type = $request->type;
+    
+        // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
             $exten = $request->thumbnail->extension();
-            if (in_array($exten, array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
+            if (in_array($exten, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
+                // Create a unique file name
                 $fileName = date('YmdHis') . '.' . $exten;
+                // Move the uploaded file to the desired location
                 $request->thumbnail->move(public_path('images/post'), $fileName);
-                $post->thumbnail = $fileName;
+                $post->thumbnail = $fileName; // Set the thumbnail field
             }
         }
-        $post->created_at = date('Ymd H:i:s');
+    
+        // Update the created_by and created_at fields
         $post->created_by = Auth::id() ?? 1;
+        $post->created_at = now(); // Use Carbon's now() for better readability
+    
+        // Save the updated post
         $post->save();
-
+    
         return response()->json([
             'status' => true,
             'message' => 'Cập nhật thành công',
             'post' => $post,
         ]);
     }
+    
 
     public function status(string $id)
     {
