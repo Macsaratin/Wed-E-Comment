@@ -14,6 +14,10 @@ const ProductDetail = () => {
     const [isAdding, setIsAdding] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [enlargedImage, setEnlargedImage] = useState(null);
+
+    // Local cart state
+    const [cart, setCart] = useState([]);
 
     // States for post creation
     const [postTitle, setPostTitle] = useState('');
@@ -39,21 +43,30 @@ const ProductDetail = () => {
         fetchProduct();
     }, [id]);
 
-    const addToBag = async () => {
+    const addToBag = () => {
         setIsAdding(true);
-        try {
-            const response = await axios.post(`${API_BASE_URL}/cart/add`, { productId: product.id, quantity, image: selectedImage });
-            if (response.data.status) {
-                alert('Product added to bag successfully!');
-            } else {
-                alert('Failed to add product to bag.');
+        const newItem = {
+            id: product.id,
+            name: product.name,
+            quantity,
+            price: product.price_sale > 0 ? product.price_sale : product.price,
+            image: selectedImage,
+        };
+
+        // Update the cart state
+        setCart(prevCart => {
+            const existingItem = prevCart.find(item => item.id === newItem.id);
+            if (existingItem) {
+                // If the item is already in the cart, update its quantity
+                return prevCart.map(item =>
+                    item.id === newItem.id ? { ...existingItem, quantity: existingItem.quantity + quantity } : item
+                );
             }
-        } catch (error) {
-            console.error('Error adding product to bag:', error);
-            alert('Error adding product to bag. Please try again later.');
-        } finally {
-            setIsAdding(false);
-        }
+            return [...prevCart, newItem]; // Add new item
+        });
+
+        alert('Product added to bag successfully!');
+        setIsAdding(false);
     };
 
     const handlePostSubmit = async (e) => {
@@ -95,26 +108,20 @@ const ProductDetail = () => {
                 <div className="bg-white shadow-lg rounded-lg p-6">
                     <h1 className="text-3xl font-bold mb-4 text-green-800">{product.name}</h1>
                     <div className="flex flex-wrap mb-4">
-                        {product.images.length > 1 ? (
-                            product.images.map((image, index) => (
-                                <img
-                                    key={index}
-                                    src={`http://localhost:8000/images/product/${image.thumbnail}`}
-                                    alt={`${product.name} ${index + 1}`}
-                                    className={`w-full max-w-xs rounded-lg mb-4 mr-4 cursor-pointer ${selectedImage === image.thumbnail ? 'border-2 border-blue-500' : ''}`}
-                                    onClick={() => setSelectedImage(image.thumbnail)}
-                                />
-                            ))
-                        ) : product.images.length === 1 ? (
+                        {product.images.map((image, index) => (
                             <img
-                                src={`http://localhost:8000/images/product/${product.images[0].thumbnail}`}
-                                alt={product.name}
-                                className="w-full max-w-xs rounded-lg mb-4"
+                                key={index}
+                                src={`http://localhost:8000/images/product/${image.thumbnail}`}
+                                alt={`${product.name} ${index + 1}`}
+                                className={`w-full max-w-xs rounded-lg mb-4 mr-4 cursor-pointer ${selectedImage === image.thumbnail ? 'border-2 border-blue-500' : ''}`}
+                                onClick={() => {
+                                    setSelectedImage(image.thumbnail);
+                                    setEnlargedImage(image.thumbnail);
+                                }}
                             />
-                        ) : null}
+                        ))}
                     </div>
                     <div className="mb-4">
-                        <p className="text-lg"><strong>Category:</strong> {product.catname}</p>
                         <p className="text-lg"><strong>Brand:</strong> {product.brandname}</p>
                         <p className="text-lg"><strong>Description:</strong> {product.description}</p>
                         <p className="text-lg"><strong>Price:</strong> {product.price.toLocaleString('vi-VN')} ₫</p>
@@ -135,10 +142,28 @@ const ProductDetail = () => {
                     >
                         {isAdding ? 'Adding...' : 'Add to Bag'}
                     </button>
-
-                    {/* Post Creation Form */}
                 </div>
             </div>
+
+            {/* Enlarged Image Modal */}
+            {enlargedImage && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="relative">
+                        <img
+                            src={`http://localhost:8000/images/product/${enlargedImage}`}
+                            alt="Enlarged"
+                            className="max-w-full max-h-screen"
+                        />
+                        <button
+                            onClick={() => setEnlargedImage(null)}
+                            className="absolute top-2 right-2 text-white bg-red-600 rounded-full p-2"
+                        >
+                            &times; {/* Close button */}
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div className="mt-6">
                 <h2 className="text-xl font-bold mb-4">Create a New Post</h2>
                 <form onSubmit={handlePostSubmit} className="bg-gray-100 p-4 rounded-lg">

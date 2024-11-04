@@ -75,7 +75,7 @@ const Product = () => {
         }
     };
 
-    // Function to handle filters
+    // Filtering products
     const filteredProducts = products.filter(product => {
         const productPrice = parseFloat(product.price);
         const minPrice = parseFloat(minPriceFilter);
@@ -83,18 +83,22 @@ const Product = () => {
 
         const matchesPrice = (isNaN(minPrice) || productPrice >= minPrice) &&
             (isNaN(maxPrice) || productPrice <= maxPrice);
-        const matchesCategory = !categoryFilter || product.category === categoryFilter;
-        const matchesBrand = !brandFilter || product.brand === brandFilter;
+        const matchesCategory = !categoryFilter || product.catname === categoryFilter;
+        const matchesBrand = !brandFilter || product.brandname === brandFilter;
         const matchesYear = !yearFilter || new Date(product.created_at).getFullYear() === parseInt(yearFilter);
-        const matchesStatus = product.status === 1; // Check for status
+        const matchesStatus = product.status === 1; // Check for active status
 
         return matchesPrice && matchesCategory && matchesBrand && matchesYear && matchesStatus;
     });
 
+    // Remove duplicates by ID
+    const uniqueFilteredProducts = Array.from(new Set(filteredProducts.map(p => p.id)))
+        .map(id => filteredProducts.find(p => p.id === id));
+
     // Pagination logic
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const totalPages = Math.ceil(uniqueFilteredProducts.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+    const currentProducts = uniqueFilteredProducts.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="2xl:container 2xl:mx-auto">
@@ -129,6 +133,7 @@ const Product = () => {
                             <option disabled>No Categories Available</option>
                         )}
                     </select>
+
                     <select onChange={e => setBrandFilter(e.target.value)} className="border p-2">
                         <option value="">Select Brand</option>
                         {Array.isArray(brands) && brands.length > 0 ? (
@@ -139,6 +144,7 @@ const Product = () => {
                             <option disabled>No Brands Available</option>
                         )}
                     </select>
+
                     <select onChange={e => setYearFilter(e.target.value)} className="border p-2">
                         <option value="">Select Year</option>
                         <option value="2023">2023</option>
@@ -157,7 +163,7 @@ const Product = () => {
                                 <div className="absolute bottom-0 p-8 w-full opacity-0 group-hover:opacity-100">
                                     <button
                                         className="font-medium text-base leading-4 text-gray-800 bg-white py-3 w-full"
-                                        onClick={() => addToCart(product)} // Call addToCart here
+                                        onClick={() => addToCart(product)}
                                     >
                                         Add to bag
                                     </button>

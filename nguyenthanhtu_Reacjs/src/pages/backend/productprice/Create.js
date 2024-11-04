@@ -19,8 +19,8 @@ function AddProductSale() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await ProductService.getList(); // Fetch the list of products
-                setProducts(response.products); // Adjust according to your API response structure
+                const response = await ProductService.getList();
+                setProducts(response.products);
             } catch (error) {
                 setError('Không thể tải danh sách sản phẩm.');
                 console.error(error);
@@ -42,9 +42,9 @@ function AddProductSale() {
         e.preventDefault();
 
         try {
-            const response = await ProductSaleService.add(); // Pass the productSale data
+            const response = await ProductSaleService.add();
             if (response.status) {
-                navigate('/admin/productsale'); // Redirect to product sale list
+                navigate('/admin/productsale');
             } else {
                 setError(response.message);
             }
@@ -107,7 +107,7 @@ function AddProductSale() {
                 <div className="form-group">
                     <label className="block text-gray-600 mb-1">Ngày bắt đầu:</label>
                     <input
-                        type="date"
+                        type="datetime-local"
                         name="date_begin"
                         value={productSale.date_begin}
                         onChange={handleChange}
@@ -119,7 +119,7 @@ function AddProductSale() {
                 <div className="form-group">
                     <label className="block text-gray-600 mb-1">Ngày kết thúc:</label>
                     <input
-                        type="date"
+                        type="datetime-local"
                         name="date_end"
                         value={productSale.date_end}
                         onChange={handleChange}

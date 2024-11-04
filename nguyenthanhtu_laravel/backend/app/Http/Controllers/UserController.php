@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Auth;
@@ -26,8 +27,8 @@ class UserController extends Controller
     public function trash()
     {
         $user =User::where('status','=',0)
-        ->orderBy('site_name','ASC')
-        ->select("id","email","phones","status","address")
+        ->orderBy('id','ASC')
+        ->select("id","email","phone","status","address")
         ->get();
         $result =[
             'status'=>true,
@@ -269,5 +270,39 @@ public function destroy($id)
         }
         return response()->json($result);
 }
+public function login(Request $request)
+{
+    $user = User::where('email', $request->email)->first();
 
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['message' => 'Invalid credentials'], 401);
+    }
+
+    $token = $user->createToken('authToken')->plainTextToken;
+
+    return response()->json(['message' => 'Login successful', 'token' => $token, 'user' => $user], 200);
+}
+public function register(StoreUserRequest $request)
+{
+    $user = new User();
+    $user->name = $request->name;
+    $user->fullname = $request->fullname; // Include fullname if needed
+    $user->phone = $request->phone;
+    $user->email = $request->email;
+    $user->address = $request->address;
+    $user->gender = $request->gender;
+    $user->password = bcrypt($request->password);
+    $user->roles = 'customer';
+    
+    // Handle thumbnail upload
+    if ($request->hasFile('thumbnail')) {
+        $path = $request->file('thumbnail')->store('thumbnail', 'public');
+        $user->thumbnail = $path;
+    }
+    $user->created_at = now();
+    $user->created_by = Auth::id() ?? 1;
+    $user->save();
+
+    return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+}
 }

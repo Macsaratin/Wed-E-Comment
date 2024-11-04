@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import '../../../index.css'; // Thêm file CSS nếu cần
 import BannerService from '../../../services/BannerService'; // Adjust the path
 
 const Banner = () => {
